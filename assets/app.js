@@ -110,6 +110,9 @@ function applyFilters(rows, f) {
     if (f.dateTo && r.Date > f.dateTo) return false;
     if (f.store !== 'all' && r.Store !== f.store) return false;
     if (f.product !== 'all' && r.Product !== f.product) return false;
+    if (f.category !== 'all' && r.Category !== f.category) return false;
+    if (f.region !== 'all' && r.Region !== f.region) return false;
+    if (f.season !== 'all' && r.Season !== f.season) return false;
     // Đảm bảo r.Promo và r.Epidemic tồn tại trong CSV
     if (f.promo !== 'all' && String(r.Promo) !== f.promo) return false;
     if (f.epidemic !== 'all' && String(r.Epidemic) !== f.epidemic) return false;
@@ -224,8 +227,12 @@ function buildNav() {
 }
 
 function renderPage(page) {
-  if (page === 'overview') renderOverview() 
-  const filtered = applyFilters(processedRows, filters);
+  if (page === 'overview') renderOverview();
+  else if (page === 'inventory') renderInventory();
+  else if (page === 'drivers') renderDrivers();
+  else if (page === 'forecast') renderForecast();
+  else if (page === 'product') renderProductStore();
+}
   
   // Tính toán KPI từ các cột bạn đã nêu
   const totalDemand = filtered.reduce((a, b) => a + (b.Demand || 0), 0);
@@ -924,19 +931,6 @@ function renderDataTable({ data, columns, state, tableId, paginationId, searchId
 /* 13. Boot                                                                 */
 /* ---------------------------------------------------------------------- */
 init();
-function renderFilterBar(containerId) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-
-  container.innerHTML = `
-    <div class="filter-controls" style="display:flex; gap:10px; flex-wrap:wrap; padding:10px;">
-      <select id="f-store"><option value="all">All Stores</option>${dims.stores.map(s => `<option value="${s}">${s}</option>`).join('')}</select>
-      <select id="f-product"><option value="all">All Products</option>${dims.products.map(p => `<option value="${p}">${p}</option>`).join('')}</select>
-      <input type="date" id="f-from" value="${filters.dateFrom}">
-      <input type="date" id="f-to" value="${filters.dateTo}">
-    </div>
-  `;
-
   // Lắng nghe sự kiện thay đổi để cập nhật biểu đồ ngay lập tức
   container.querySelectorAll('select, input').forEach(el => {
     el.addEventListener('change', (e) => {
@@ -948,24 +942,3 @@ function renderFilterBar(containerId) {
     });
   });
 }
-
-function buildSelectPanel() { 
-    console.log("Quick select panel initialized."); 
-}
-
-// Hàm render Overview (nếu bạn đã sửa rồi thì bỏ qua, nếu chưa thì dùng bản tạm này)
-function renderOverview() {
-  const data = applyFilters(processedRows, filters);
-  // Ví dụ cập nhật 1 số tổng quát
-  const totalUnits = data.reduce((sum, r) => sum + (r.UnitsSold || 0), 0);
-  console.log("Current filtered UnitsSold:", totalUnits);
-}
-
-// Các hàm trang khác (để trống để không báo lỗi)
-function renderInventory() { console.log("Inventory View"); }
-function renderDrivers() { console.log("Drivers View"); }
-function renderForecast() { console.log("Forecast View"); }
-function renderProductStore() { console.log("Product Detail View"); }
-
-// Lệnh cuối cùng để khởi chạy toàn bộ
-init();
