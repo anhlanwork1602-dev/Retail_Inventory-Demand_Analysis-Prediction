@@ -110,9 +110,7 @@ function applyFilters(rows, f) {
     if (f.dateTo && r.Date > f.dateTo) return false;
     if (f.store !== 'all' && r.Store !== f.store) return false;
     if (f.product !== 'all' && r.Product !== f.product) return false;
-    if (f.category !== 'all' && r.Category !== f.category) return false;
-    if (f.region !== 'all' && r.Region !== f.region) return false;
-    if (f.season !== 'all' && r.Season !== f.season) return false;
+    // Đảm bảo r.Promo và r.Epidemic tồn tại trong CSV
     if (f.promo !== 'all' && String(r.Promo) !== f.promo) return false;
     if (f.epidemic !== 'all' && String(r.Epidemic) !== f.epidemic) return false;
     return true;
