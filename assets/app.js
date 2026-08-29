@@ -273,7 +273,8 @@ function renderFilterBar(containerId) {
 }
 
 function updateFilterCount() {
-  const n = applyFilters(processedRows, filters).length;
+  const source = currentPage === 'forecast' ? predictionRows : processedRows;
+  const n = applyFilters(source, filters).length;
   document.querySelectorAll('[id^="f-count"]').forEach(el => {
     el.textContent = `${fmtInt(n)} of ${fmtInt(processedRows.length)} rows match`;
   });
