@@ -248,7 +248,7 @@ function renderPage(page) {
     }
   });
 };
-  else if (page === 'inventory') renderInventory();
+  if (page === 'inventory') renderInventory();
   else if (page === 'drivers') renderDrivers();
   else if (page === 'forecast') renderForecast();
   else if (page === 'product') renderProductStore();
