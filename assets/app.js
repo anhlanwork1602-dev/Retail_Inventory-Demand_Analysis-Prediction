@@ -254,7 +254,6 @@ function renderPage(page) {
       }]
     }
   });
-};
   if (page === 'inventory') renderInventory();
   else if (page === 'drivers') renderDrivers();
   else if (page === 'forecast') renderForecast();
