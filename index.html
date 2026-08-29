@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retail Demand &amp; Inventory Analytics</title>
+<meta name="description" content="Interactive retail demand, inventory risk, driver and forecasting analytics dashboard.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="loading-screen" id="loadingScreen">
+  <div class="spinner"></div>
+  <span>Loading retail dataset…</span>
+</div>
+
+<div class="app-shell">
+
+  <!-- ============================== SIDEBAR ============================== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="mark">R</div>
+      <h1>Retail Demand &amp;<br>Inventory Analytics</h1>
+      <span>Business Intelligence Dashboard</span>
+    </div>
+    <ul class="nav-list" id="navList">
+      <li class="nav-item active" data-page="overview"><span class="n">01</span>Executive Overview</li>
+      <li class="nav-item" data-page="inventory"><span class="n">02</span>Demand &amp; Inventory</li>
+      <li class="nav-item" data-page="drivers"><span class="n">03</span>Demand Drivers</li>
+      <li class="nav-item" data-page="forecast"><span class="n">04</span>Demand Forecasting</li>
+      <li class="nav-item" data-page="product"><span class="n">05</span>Product &amp; Store Analysis</li>
+    </ul>
+    <div class="sidebar-foot" id="datasetInfo">
+      <b>Dataset</b><br>Loading…
+    </div>
+  </aside>
+
+  <!-- ============================== MAIN ============================== -->
+  <main class="main">
+
+    <!-- ---------- PAGE 1 : EXECUTIVE OVERVIEW ---------- -->
+    <section class="page active" id="page-overview">
+      <div class="page-head">
+        <div>
+          <h2>Executive Overview</h2>
+          <p>A 30-second read on retail demand: how much, how it's trending, and where it's concentrated.</p>
+        </div>
+      </div>
+
+      <div class="filterbar" id="filterbarGlobal"><!-- injected by JS --></div>
+
+      <div class="grid grid-kpi" id="kpiRow"><!-- injected by JS --></div>
+
+      <div class="grid grid-2" style="margin-bottom:14px;">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3>Overall Demand Trend</h3>
+              <div class="sub">Total demand across the selected filters</div>
+            </div>
+            <div class="segmented" id="trendGranularity">
+              <button data-g="daily" class="active">Daily</button>
+              <button data-g="weekly">Weekly</button>
+              <button data-g="monthly">Monthly</button>
+            </div>
+          </div>
+          <div class="chart-wrap chart-h-280"><canvas id="chartDemandTrend"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h3>Key Business Insights</h3><div class="sub">Auto-generated, full-dataset context</div></div></div>
+          <ul class="insights-list" id="insightsList"></ul>
+        </div>
+      </div>
+
+      <div class="grid grid-2-even">
+        <div class="card">
+          <div class="card-head"><div><h3>Demand by Category</h3><div class="sub">Total demand, ranked highest to lowest</div></div></div>
+          <div class="chart-wrap chart-h-220"><canvas id="chartCategoryDemand"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h3>Demand by Region</h3><div class="sub">Total demand, ranked highest to lowest</div></div></div>
+          <div class="chart-wrap chart-h-220"><canvas id="chartRegionDemand"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- PAGE 2 : DEMAND & INVENTORY ---------- -->
+    <section class="page" id="page-inventory">
+      <div class="page-head">
+        <div>
+          <h2>Demand &amp; Inventory</h2>
+          <p>Is inventory keeping pace with demand — and where is stockout risk concentrated?</p>
+        </div>
+      </div>
+
+      <div class="filterbar" id="filterbarGlobal2"><!-- injected by JS (mirrors global filters) --></div>
+
+      <div class="grid grid-kpi" id="kpiRowInv" style="grid-template-columns: repeat(4,1fr);"></div>
+
+      <div class="grid grid-2-even" style="margin-bottom:14px;">
+        <div class="card">
+          <div class="card-head"><div><h3>Demand vs Inventory</h3><div class="sub">Sampled observations · points below the line are at stockout risk</div></div></div>
+          <div class="chart-wrap chart-h-280"><canvas id="chartInvVsDemand"></canvas></div>
+          <div class="legend-row">
+            <span class="sw"><i style="background:var(--good)"></i>Inventory ≥ demand</span>
+            <span class="sw"><i style="background:var(--bad)"></i>Inventory &lt; demand (stockout)</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h3>Inventory Gap by Category</h3><div class="sub">Avg. (Inventory − Demand); negative = shortfall</div></div></div>
+          <div class="chart-wrap chart-h-280"><canvas id="chartInvGap"></canvas></div>
+        </div>
+      </div>
+
+      <div class="grid grid-2-even" style="margin-bottom:14px;">
+        <div class="card">
+          <div class="card-head"><div><h3>Stockout Risk by Category</h3><div class="sub">% of observations where inventory fell below demand</div></div></div>
+          <div class="chart-wrap chart-h-220"><canvas id="chartStockoutCat"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h3>Inventory Coverage by Category</h3><div class="sub">Avg. inventory ÷ demand · below 1.0 signals thin buffer</div></div></div>
+          <div class="chart-wrap chart-h-220"><canvas id="chartCoverageCat"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div><h3>Product Inventory Table</h3><div class="sub">All 20 SKUs · high-risk products highlighted</div></div></div>
+        <div class="table-toolbar">
+          <input type="text" class="table-search" id="invTableSearch" placeholder="Search product or category…">
+          <span class="table-meta" id="invTableMeta"></span>
+        </div>
+        <div class="data-table-wrap"><table class="data-table" id="invTable"></table></div>
+        <div class="pagination" id="invTablePagination"></div>
+        <div class="legend-row">
+          <span class="sw"><i style="background:var(--bad)"></i>Stockout risk ≥ 15%</span>
+          <span class="sw"><i style="background:var(--warn)"></i>Stockout risk 8–15%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- PAGE 3 : DEMAND DRIVERS ---------- -->
+    <section class="page" id="page-drivers">
+      <div class="page-head">
+        <div>
+          <h2>Demand Drivers</h2>
+          <p>What factors move demand — and how much weight does each carry in the forecasting model?</p>
+        </div>
+      </div>
+
+      <div class="filterbar" id="filterbarGlobal3"></div>
+
+      <div class="grid grid-2-even" style="margin-bottom:14px;">
+        <div class="card">
+          <div class="card-head"><div><h3>Price vs Demand</h3><div class="sub">Sampled observations</div></div></div>
+          <div class="chart-wrap chart-h-280"><canvas id="chartPriceDemand"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h3>Promotion &amp; Epidemic Effects</h3><div class="sub">Average demand, grouped comparison</div></div></div>
+          <div class="compare-row">
+            <div class="cbox" id="promoNo"><div class="val">–</div><div class="lab">No Promotion</div></div>
+            <div class="vs">VS</div>
+            <div class="cbox hi" id="promoYes"><div class="val">–</div><div class="lab">Promotion</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="cbox" id="epiNo"><div class="val">–</div><div class="lab">Normal Period</div></div>
+            <div class="vs">VS</div>
+            <div class="cbox hi" id="epiYes"><div class="val">–</div><div class="lab">Epidemic Period</div></div>
+          </div>
+          <div class="card-note">Comparisons update with the filters above and reflect the current data selection.</div>
+        </div>
+      </div>
+
+      <div class="grid grid-2-even">
+        <div class="card">
+          <div class="card-head"><div><h3>Demand Correlation</h3><div class="sub">Pearson correlation with Demand · <b>correlation, not causation</b></div></div></div>
+          <div class="chart-wrap chart-h-280"><canvas id="chartCorrelation"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h3>Model Feature Importance</h3><div class="sub">Top 15 features driving the Random Forest forecast</div></div></div>
+          <div class="chart-wrap chart-h-280"><canvas id="chartFeatureImportance"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- PAGE 4 : DEMAND FORECASTING ---------- -->
+    <section class="page" id="page-forecast">
+      <div class="page-head">
+        <div>
+          <h2>Demand Forecasting</h2>
+          <p>How accurately can the Random Forest model predict future demand from historical patterns?</p>
+        </div>
+      </div>
+
+      <div class="filterbar" id="filterbarGlobal4"></div>
+
+      <div class="grid grid-kpi" id="kpiRowModel" style="grid-template-columns: repeat(3,1fr);"></div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-head"><div><h3>Actual vs Predicted Demand</h3><div class="sub">Daily aggregate over the held-out test period</div></div></div>
+        <div class="chart-wrap chart-h-340"><canvas id="chartActualPredicted"></canvas></div>
+        <div class="brush-wrap">
+          <div class="brush-controls">
+            <span class="brush-label" id="brushStartLabel"></span>
+            <input type="range" id="brushStart" min="0" max="100" value="0">
+            <input type="range" id="brushEnd" min="0" max="100" value="100">
+            <span class="brush-label" id="brushEndLabel"></span>
+            <button class="reset-zoom" id="resetZoomBtn">Reset zoom</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2-even" style="margin-bottom:14px;">
+        <div class="card">
+          <div class="card-head"><div><h3>Actual vs Predicted (Scatter)</h3><div class="sub">Reference diagonal = perfect prediction</div></div></div>
+          <div class="chart-wrap chart-h-280"><canvas id="chartScatterAP"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h3>Forecast Error Over Time</h3><div class="sub">Actual − Predicted, daily aggregate</div></div></div>
+          <div class="chart-wrap chart-h-280"><canvas id="chartForecastError"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div><h3>Feature Importance Summary</h3><div class="sub">Historical demand → features → forecast</div></div></div>
+        <div class="chart-wrap chart-h-220"><canvas id="chartFeatureImportance2"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ---------- PAGE 5 : PRODUCT & STORE ANALYSIS ---------- -->
+    <section class="page" id="page-product">
+      <div class="page-head">
+        <div>
+          <h2>Product &amp; Store Analysis</h2>
+          <p>Drill into a single product or store to see demand, inventory and risk up close.</p>
+        </div>
+      </div>
+
+      <div class="filterbar">
+        <div class="select-panel" id="selectPanel"><!-- injected by JS --></div>
+      </div>
+
+      <div id="page5Empty" class="card select-empty">
+        Select a <b>Product</b> or <b>Store</b> above to drill into its demand, inventory and risk profile.
+      </div>
+
+      <div id="page5Content" style="display:none;">
+        <div class="grid grid-kpi" id="kpiRow5"></div>
+
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-head"><div><h3 id="trendTitle5">Demand vs Inventory Trend</h3><div class="sub">Daily values for the current selection</div></div></div>
+          <div class="chart-wrap chart-h-280"><canvas id="chartTrend5"></canvas></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><h3>Product Performance</h3><div class="sub" id="perfSub5">All products in the current selection</div></div></div>
+          <div class="table-toolbar">
+            <input type="text" class="table-search" id="perfTableSearch" placeholder="Search product or category…">
+            <span class="table-meta" id="perfTableMeta"></span>
+          </div>
+          <div class="data-table-wrap"><table class="data-table" id="perfTable"></table></div>
+          <div class="pagination" id="perfTablePagination"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
