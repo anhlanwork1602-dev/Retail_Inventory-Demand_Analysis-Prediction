@@ -1,0 +1,8 @@
+[
+  "Groceries is the highest-demand category, averaging 121 units per order line.",
+  "The South region generates the highest average demand across all stores.",
+  "Clothing carries the highest stockout risk at 19.4% of observations, and needs closer inventory attention.",
+  "Demand during epidemic periods is -37.8% compared to normal periods.",
+  "Promotional periods show +29.7% average demand versus non-promotional periods.",
+  "Overall stockout risk sits at 13.7% of all store-product-day observations."
+]

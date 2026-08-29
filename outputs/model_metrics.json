@@ -1,0 +1,13 @@
+{
+  "mae": 21.3,
+  "rmse": 28.6,
+  "r2": 0.5808,
+  "train_start": "2022-01-29",
+  "train_end": "2023-09-06",
+  "test_start": "2023-09-07",
+  "test_end": "2024-01-30",
+  "n_train": 58600,
+  "n_test": 14600,
+  "n_estimators": 200,
+  "model": "RandomForestRegressor"
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "Label":"Rolling Avg Demand (7d)",
+    "Importance":0.34985
+  },
+  {
+    "Label":"Promotion",
+    "Importance":0.1202
+  },
+  {
+    "Label":"Price",
+    "Importance":0.12007
+  },
+  {
+    "Label":"Epidemic",
+    "Importance":0.04471
+  },
+  {
+    "Label":"Competitor Pricing",
+    "Importance":0.03685
+  },
+  {
+    "Label":"Category: Groceries",
+    "Importance":0.03478
+  },
+  {
+    "Label":"Weather Condition: Sunny",
+    "Importance":0.03186
+  },
+  {
+    "Label":"Category: Furniture",
+    "Importance":0.02874
+  },
+  {
+    "Label":"Rolling Avg Demand (28d)",
+    "Importance":0.02185
+  },
+  {
+    "Label":"Seasonality: Summer",
+    "Importance":0.01896
+  },
+  {
+    "Label":"Inventory Level",
+    "Importance":0.01806
+  },
+  {
+    "Label":"Demand (1 day ago)",
+    "Importance":0.01479
+  },
+  {
+    "Label":"Demand (28 days ago)",
+    "Importance":0.01432
+  },
+  {
+    "Label":"Demand (7 days ago)",
+    "Importance":0.01407
+  },
+  {
+    "Label":"Discount",
+    "Importance":0.01169
+  }
+]

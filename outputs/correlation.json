@@ -1,1 +1,34 @@
-
+[
+  {
+    "feature": "Units Sold",
+    "correlation": 0.8334
+  },
+  {
+    "feature": "Units Ordered",
+    "correlation": 0.512
+  },
+  {
+    "feature": "Epidemic",
+    "correlation": -0.3637
+  },
+  {
+    "feature": "Promotion",
+    "correlation": 0.2825
+  },
+  {
+    "feature": "Discount",
+    "correlation": 0.2247
+  },
+  {
+    "feature": "Inventory Level",
+    "correlation": 0.1266
+  },
+  {
+    "feature": "Price",
+    "correlation": -0.0235
+  },
+  {
+    "feature": "Competitor Pricing",
+    "correlation": -0.023
+  }
+]
