@@ -224,7 +224,7 @@ function buildNav() {
 }
 
 function renderPage(page) {
-  if (page === 'overview') renderOverview() {
+  if (page === 'overview') renderOverview() 
   const filtered = applyFilters(processedRows, filters);
   
   // Tính toán KPI từ các cột bạn đã nêu
