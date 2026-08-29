@@ -212,7 +212,30 @@ function buildNav() {
 }
 
 function renderPage(page) {
-  if (page === 'overview') renderOverview();
+  if (page === 'overview') renderOverview() {
+  const filtered = applyFilters(processedRows, filters);
+  
+  // Tính toán KPI từ các cột bạn đã nêu
+  const totalDemand = filtered.reduce((a, b) => a + (b.Demand || 0), 0);
+  const avgStockout = mean(filtered.map(r => r.Stockout || 0)) * 100;
+
+  // Cập nhật giao diện (Ví dụ)
+  const el = document.getElementById('kpi-demand');
+  if (el) el.innerText = fmtInt(totalDemand);
+  
+  // Vẽ biểu đồ bằng Chart.js
+  makeChart('mainChart', {
+    type: 'line',
+    data: {
+      labels: sampleArray(filtered.map(r => r.Date), 20),
+      datasets: [{
+        label: 'Demand',
+        data: sampleArray(filtered.map(r => r.Demand), 20),
+        borderColor: COLORS.accent
+      }]
+    }
+  });
+};
   else if (page === 'inventory') renderInventory();
   else if (page === 'drivers') renderDrivers();
   else if (page === 'forecast') renderForecast();
