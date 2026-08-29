@@ -106,7 +106,7 @@ function makeChart(canvasId, config) {
 /* ---------------------------------------------------------------------- */
 function applyFilters(rows, f) {
   return rows.filter(r => {
-    if (f.dateFrom && r.Date < f.dateFrom) return false;
+    if (f.dateFrom && new Date(r.Date) < new Date(f.dateFrom)) return false;
     if (f.dateTo && r.Date > f.dateTo) return false;
     if (f.store !== 'all' && r.Store !== f.store) return false;
     if (f.product !== 'all' && r.Product !== f.product) return false;
@@ -160,8 +160,22 @@ async function init() {
     dims.categories = uniqueSorted(processedRows, 'Category');
     dims.regions = uniqueSorted(processedRows, 'Region');
     dims.seasons = uniqueSorted(processedRows, 'Season');
-    dateBounds.min = processedRows.reduce((a, r) => r.Date < a ? r.Date : a, processedRows[0].Date);
-    dateBounds.max = processedRows.reduce((a, r) => r.Date > a ? r.Date : a, processedRows[0].Date);
+        // Kiểm tra nếu có dữ liệu mới tính toán ngày
+    if (processedRows.length > 0) {
+      dateBounds.min = processedRows.reduce((a, r) => (r.Date < a ? r.Date : a), processedRows[0].Date);
+      dateBounds.max = processedRows.reduce((a, r) => (r.Date > a ? r.Date : a), processedRows[0].Date);
+      
+      // Gán ngày mặc định cho bộ lọc
+      filters.dateFrom = dateBounds.min;
+      filters.dateTo = dateBounds.max;
+    }
+
+    const infoEl = document.getElementById('datasetInfo');
+    if (infoEl) {
+      infoEl.innerHTML =
+        `<b>Dataset</b><br>${fmtInt(processedRows.length)} rows &middot; ${dateBounds.min} to ${dateBounds.max}<br>` +
+        `${dims.stores.length} stores &middot; ${dims.products.length} products`;
+    }
 
     document.getElementById('datasetInfo').innerHTML =
       `<b>Dataset</b><br>${fmtInt(processedRows.length)} rows &middot; ${dateBounds.min} to ${dateBounds.max}<br>` +
@@ -911,4 +925,49 @@ function renderDataTable({ data, columns, state, tableId, paginationId, searchId
 /* ---------------------------------------------------------------------- */
 /* 13. Boot                                                                 */
 /* ---------------------------------------------------------------------- */
+init();
+function renderFilterBar(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="filter-controls" style="display:flex; gap:10px; flex-wrap:wrap; padding:10px;">
+      <select id="f-store"><option value="all">All Stores</option>${dims.stores.map(s => `<option value="${s}">${s}</option>`).join('')}</select>
+      <select id="f-product"><option value="all">All Products</option>${dims.products.map(p => `<option value="${p}">${p}</option>`).join('')}</select>
+      <input type="date" id="f-from" value="${filters.dateFrom}">
+      <input type="date" id="f-to" value="${filters.dateTo}">
+    </div>
+  `;
+
+  // Lắng nghe sự kiện thay đổi để cập nhật biểu đồ ngay lập tức
+  container.querySelectorAll('select, input').forEach(el => {
+    el.addEventListener('change', (e) => {
+      if (e.target.id === 'f-store') filters.store = e.target.value;
+      if (e.target.id === 'f-product') filters.product = e.target.value;
+      if (e.target.id === 'f-from') filters.dateFrom = e.target.value;
+      if (e.target.id === 'f-to') filters.dateTo = e.target.value;
+      renderPage(currentPage); // Vẽ lại trang hiện tại
+    });
+  });
+}
+
+function buildSelectPanel() { 
+    console.log("Quick select panel initialized."); 
+}
+
+// Hàm render Overview (nếu bạn đã sửa rồi thì bỏ qua, nếu chưa thì dùng bản tạm này)
+function renderOverview() {
+  const data = applyFilters(processedRows, filters);
+  // Ví dụ cập nhật 1 số tổng quát
+  const totalUnits = data.reduce((sum, r) => sum + (r.UnitsSold || 0), 0);
+  console.log("Current filtered UnitsSold:", totalUnits);
+}
+
+// Các hàm trang khác (để trống để không báo lỗi)
+function renderInventory() { console.log("Inventory View"); }
+function renderDrivers() { console.log("Drivers View"); }
+function renderForecast() { console.log("Forecast View"); }
+function renderProductStore() { console.log("Product Detail View"); }
+
+// Lệnh cuối cùng để khởi chạy toàn bộ
 init();
