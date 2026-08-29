@@ -252,8 +252,6 @@ function renderPage(page) {
   else if (page === 'drivers') renderDrivers();
   else if (page === 'forecast') renderForecast();
   else if (page === 'product') renderProductStore();
-}
-
 /* ---------------------------------------------------------------------- */
 /* 6. Global filter bar (re-rendered into whichever page container is     */
 /*    active; reads/writes the shared `filters` state)                    */
