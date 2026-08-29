@@ -940,4 +940,3 @@ init();
       renderPage(currentPage); // Vẽ lại trang hiện tại
     });
   });
-}
