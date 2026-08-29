@@ -930,13 +930,3 @@ function renderDataTable({ data, columns, state, tableId, paginationId, searchId
 /* 13. Boot                                                                 */
 /* ---------------------------------------------------------------------- */
 init();
-  // Lắng nghe sự kiện thay đổi để cập nhật biểu đồ ngay lập tức
-  container.querySelectorAll('select, input').forEach(el => {
-    el.addEventListener('change', (e) => {
-      if (e.target.id === 'f-store') filters.store = e.target.value;
-      if (e.target.id === 'f-product') filters.product = e.target.value;
-      if (e.target.id === 'f-from') filters.dateFrom = e.target.value;
-      if (e.target.id === 'f-to') filters.dateTo = e.target.value;
-      renderPage(currentPage); // Vẽ lại trang hiện tại
-    });
-  });
